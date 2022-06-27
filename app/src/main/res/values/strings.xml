@@ -8,4 +8,5 @@
     <string name="previous">Previous</string>
     <string name="image_queue">Image Queue</string>
     <string name="photo_description">photo</string>
+    <string name="turn_label">turn %s</string>
 </resources>

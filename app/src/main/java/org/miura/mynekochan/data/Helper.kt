@@ -13,7 +13,7 @@ class Helper(
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL("create table if not exists ImageData (id text primary key, image blob, flag integer, deleted integer)")
         db?.execSQL("create table if not exists Target (image blob)")
-        db?.execSQL("create table if not exists Preference (disposed int)")
+        db?.execSQL("create table if not exists Preference (turn int)")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
