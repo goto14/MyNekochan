@@ -70,7 +70,7 @@ class ImageRepository {
     fun getImagesFromDB(): List<ImageData> {
         val ret = mutableListOf<ImageData>()
         val sql =
-            "select id, image, flag from ImageData"
+            "select id, image, flag, deleted from ImageData"
         val cursor = getReadableDatabase().rawQuery(sql, null)
         if (cursor.count > 0) {
             cursor.moveToFirst()
@@ -79,6 +79,7 @@ class ImageRepository {
                 img.image = cursor.getBlob(1).let { BitmapFactory.decodeByteArray(it, 0, it.size) }
                 img.id = cursor.getString(0)
                 img.flag = cursor.getInt(2) == 1
+                img.deleted = cursor.getInt(3) == 1
                 ret.add(img)
                 cursor.moveToNext()
             }
