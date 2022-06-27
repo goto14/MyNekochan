@@ -1,10 +1,9 @@
 package org.miura.mynekochan.data.model
 
-import io.realm.kotlin.types.RealmObject
+import android.graphics.Bitmap
 
-open class ImageData :RealmObject {
-    var image:String = ""
-    var name :String = ""
-    var flag:Boolean  = false
-    var num:Int = 0
+open class ImageData {
+    var id: String = ""
+    var image: Bitmap? = null
+    var flag: Boolean = false
 }

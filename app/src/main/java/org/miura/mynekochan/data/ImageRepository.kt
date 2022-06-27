@@ -1,23 +1,24 @@
 package org.miura.mynekochan.data
 
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
 import org.miura.mynekochan.MyNekochan
 import org.miura.mynekochan.R
 import org.miura.mynekochan.data.model.ImageData
 import java.io.ByteArrayOutputStream
+import java.util.*
 
 class ImageRepository {
     companion object {
-        private var _instance: ImageRepository? = null
+        private var mInstance: ImageRepository? = null
         val instance
             get() = run {
-                if (_instance == null) {
-                    _instance = ImageRepository()
+                if (mInstance == null) {
+                    mInstance = ImageRepository()
                 }
-                _instance!!
+                mInstance!!
             }
     }
 
@@ -49,46 +50,55 @@ class ImageRepository {
                 val diff = (src.width - src.height) / 2
                 src = Bitmap.createBitmap(src, diff, 0, src.height, src.height)
             }
-            src = Bitmap.createScaledBitmap(src, 200, 200, false)
-            ImageData().also {
-                val str = ByteArrayOutputStream()
-                src.compress(Bitmap.CompressFormat.PNG, 100, str)
-                it.image = "3"
-                it.name = "testImage:" + it.image!!.length
-                it.num = 2
+            src = Bitmap.createScaledBitmap(src, 800, 800, false)
+            ImageData().also { img ->
+                img.image = src
             }
         }
-
-        val realm = getRealm()
-        realm.writeBlocking {
-            val rec = query<ImageData>().find()
-            delete(rec)
+        val db = getWritableDatabase()
+        imageList.forEach {
+            val value = ContentValues()
+            val str = ByteArrayOutputStream()
+            it.image?.compress(Bitmap.CompressFormat.PNG, 100, str)
+            value.put("image", str.toByteArray())
+            value.put("id", UUID.randomUUID().toString())
+            value.put("flag", if (it.flag) 1 else 0)
+            db.insertOrThrow("ImageData", null, value)
         }
-        imageList.first().let { src ->
-            realm.writeBlocking {
-                copyToRealm(ImageData().apply {
-                    image = src.image
-                    name = src.name
-                    num = src.num
-                })
-            }
-        }
-        realm.close()
     }
 
     fun getImagesFromDB(): List<ImageData> {
-        val realm = getRealm()
-        return realm.query<ImageData>().find()
+        val ret = mutableListOf<ImageData>()
+        val sql =
+            "select id, image, flag from ImageData"
+        val cursor = getReadableDatabase().rawQuery(sql, null)
+        if (cursor.count > 0) {
+            cursor.moveToFirst()
+            while (!cursor.isAfterLast) {
+                val img = ImageData()
+                img.image = cursor.getBlob(1).let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+                img.id = cursor.getString(0)
+                img.flag = cursor.getInt(2) == 1
+                ret.add(img)
+                cursor.moveToNext()
+            }
+        }
+        cursor.close()
+        return ret
     }
 
     fun hasDataInDb(): Boolean {
-        val realm = getRealm()
-        return realm.query<ImageData>().find().isNotEmpty()
+        return getImagesFromDB().isNotEmpty()
     }
 
-    private fun getRealm(): Realm {
-        return MyNekochan.instance.realm
+    private fun getWritableDatabase(): SQLiteDatabase {
+        val helper = Helper(MyNekochan.instance.applicationContext, "neko", null, 1)
+        return helper.writableDatabase
     }
 
+    private fun getReadableDatabase(): SQLiteDatabase {
+        val helper = Helper(MyNekochan.instance.applicationContext, "neko", null, 1)
+        return helper.readableDatabase
+    }
 
 }

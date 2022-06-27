@@ -1,17 +1,16 @@
 package org.miura.mynekochan.ui.main
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import androidx.lifecycle.ViewModelProvider
-import org.miura.mynekochan.MyNekochan
+import com.google.android.material.snackbar.Snackbar
 import org.miura.mynekochan.R
 import org.miura.mynekochan.databinding.ActivityMainBinding
 
@@ -64,8 +63,4 @@ class MainActivity : AppCompatActivity() {
                 || super.onSupportNavigateUp()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        MyNekochan.instance.realm.close()
-    }
 }
