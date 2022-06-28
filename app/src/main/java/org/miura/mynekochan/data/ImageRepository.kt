@@ -132,7 +132,7 @@ class ImageRepository {
             val x = (src.width - src.height) / 2
             ret = Bitmap.createBitmap(src, x, 0, src.height, src.height)
         }
-        return Bitmap.createScaledBitmap(ret, 200, 200, false)
+        return Bitmap.createScaledBitmap(ret, 64, 64, false)
     }
 
     fun getTargetData():Bitmap {
